@@ -11,7 +11,7 @@ enfermedad(tetanos, [espasmos_musculares, tension_musculos_labios, rigidez_muscu
 enfermedad(polio, [fiebre, dolor_garganta, dolor_cabeza, vomito, fatiga, rigidez_musculos_espalda, rigidez_musculos_cuello, rigidez_musculos_brazos, rigidez_musculos_piernas, perdida_reflejos, extremidades_flojas, problemas_respiracion, apnea_suenio]).
 enfermedad(salmonela, [diarrea, colicos_estomacales, fiebre, nauseas, vomito, escalofrios, dolor_cabeza, sangre_heces]).
 
-:- dynamic enfermedad/3.
+:- dynamic enfermedad/2.
 :- dynamic cont/1.
 :- dynamic sintomas/1.
 :- dynamic count/1.
@@ -21,7 +21,7 @@ count(0).
 
 existe_en_sintomas(X):- sintomas(Y), member(X,Y), !.
 test:- enfermedad(A,B,_), count(X), V is X+1, assert(count(V)), retractall(enfermedad(_,_,_)), assert(enfermedad(A,B,V)).
-existe_en_enfermedad([Head|Tail]):- enfermedad(_,Y,Z), member(Head, Y), existe_en_enfermedad(Tail). 
+existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma], X):- member(Cabeza_sintoma, X) ; existe_en_enfermedad(Cola_sintoma, X). 
 
 insertar([],X,[X]).
 insertar([H|T], N, [H|R]):- insertar(T, N, R).
@@ -36,4 +36,4 @@ numero_sintomas:- retractall(cont(_)), write("Ingrese el numero de sintomas que 
 preguntar(0):- write_ln(""), write_ln("Los sintomas ingresados son: "), sintomas(X), imprimir(X).
 preguntar(X):- X > 0, write('Ingrese el sintoma: '), read(Y), escribir(Y), S is X-1, preguntar(S).
 
-inicio:- numero_sintomas, cont(X), preguntar(X), sintomas(Y), existe_en_enfermedad(Y).
+inicio:- numero_sintomas, cont(X), preguntar(X), sintomas(Y), enfermedad(_, B), existe_en_enfermedad(Y, B).
