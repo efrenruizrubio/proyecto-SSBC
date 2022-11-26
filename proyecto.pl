@@ -20,8 +20,8 @@ sintomas([]).
 count([0]).
 
 existe_en_sintomas(X):- sintomas(Y), member(X,Y), !.
-test:- enfermedad(A,B,_), count(X), V is X+1, asserta(count(V)), retractall(enfermedad(_,_,_)), asserta(enfermedad(A,B,V)).
-existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma], X):- (member(Cabeza_sintoma, X) -> count(C), A is C+1, assertz(count(A)) ; true), existe_en_enfermedad(Cola_sintoma, X).
+test:- enfermedad(A,B,_), count(X), V is X+1, assert(count(V)), retractall(enfermedad(_,_,_)), assert(enfermedad(A,B,V)).
+existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma], X):- (member(Cabeza_sintoma, X) -> write_ln("Exists") ; write_ln("Doesn't exist")), existe_en_enfermedad(Cola_sintoma, X). 
 
 insertar([],X,[X]).
 insertar([H|T], N, [H|R]):- insertar(T, N, R).
@@ -33,7 +33,7 @@ vaciar_lista:- retractall(sintomas(_)), asserta(sintomas([])), retractall(count(
 
 numero_sintomas:- retractall(cont(_)), write("Ingrese el numero de sintomas que desea ingresar: "), read(X), asserta(cont(X)), vaciar_lista.
 
-preguntar(0):- write_ln(""), write_ln("Los sintomas ingresados son: "), sintomas(X), imprimir(X).
+preguntar(0):- write_ln(""), write_ln("Los sintomas ingresados son: "), retractall(cont(_)), sintomas(X), imprimir(X).
 preguntar(X):- X > 0, write('Ingrese el sintoma: '), read(Y), escribir(Y), S is X-1, preguntar(S).
 
 inicio:- numero_sintomas, cont(X), preguntar(X), sintomas(Y), enfermedad(_, B), existe_en_enfermedad(Y, B).
