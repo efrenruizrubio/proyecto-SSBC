@@ -12,7 +12,6 @@ enfermedad(polio, [fiebre, dolor_garganta, dolor_cabeza, vomito, fatiga, rigidez
 enfermedad(salmonela, [diarrea, colicos_estomacales, fiebre, nauseas, vomito, escalofrios, dolor_cabeza, sangre_heces]).
 
 :- dynamic enfermedad/2.
-:- dynamic cont/1.
 :- dynamic sintomas/1.
 :- dynamic count/1.
 
@@ -20,20 +19,18 @@ sintomas([]).
 count([0]).
 
 existe_en_sintomas(X):- sintomas(Y), member(X,Y), !.
-test:- enfermedad(A,B,_), count(X), V is X+1, assert(count(V)), retractall(enfermedad(_,_,_)), assert(enfermedad(A,B,V)).
 existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma], X):- (member(Cabeza_sintoma, X) -> write_ln("Exists") ; write_ln("Doesn't exist")), existe_en_enfermedad(Cola_sintoma, X). 
 
 insertar([],X,[X]).
 insertar([H|T], N, [H|R]):- insertar(T, N, R).
-escribir(Y):- sintomas(X), not(existe_en_sintomas(Y)), insertar(X, Y, New), retractall(sintomas(_)), asserta(sintomas(New)), !.
-escribir(_):- retractall(sintomas(_)), write_ln("Los sintomas no se registraron debido a que se ingreso un sintoma o mas repetido, intente de nuevo.").
 imprimir([Head|Tail]):- write_ln(Head), imprimir(Tail);!. 
 lista_esta_vacia(L):- not(existe_en_sintomas(_,L)).
 vaciar_lista:- retractall(sintomas(_)), asserta(sintomas([])), retractall(count(_)), asserta(count(0)).
 
-numero_sintomas:- retractall(cont(_)), write("Ingrese el numero de sintomas que desea ingresar: "), read(X), asserta(cont(X)), vaciar_lista.
+preguntar:- write('Ingrese el sintoma: '), read(X), escribir(X), write_ln("Desea ingresar otro sintoma? [s/n]"), read(Y), (Y == s -> preguntar ;  true).
+escribir(Y):- sintomas(X), not(existe_en_sintomas(Y)), insertar(X, Y, New), retractall(sintomas(_)), asserta(sintomas(New)), !.
+escribir(_):- write_ln("Los sintomas no se registraron debido a que se ingreso un sintoma o mas repetido, intente de nuevo."), preguntar.
 
-preguntar(0):- write_ln(""), write_ln("Los sintomas ingresados son: "), retractall(cont(_)), sintomas(X), imprimir(X).
-preguntar(X):- X > 0, write('Ingrese el sintoma: '), read(Y), escribir(Y), S is X-1, preguntar(S).
+mostrar_sintomas(X):- write_ln(""), write_ln("Los sintomas ingresados son: "), imprimir(X).
 
-inicio:- numero_sintomas, cont(X), preguntar(X), sintomas(Y), enfermedad(_, B), existe_en_enfermedad(Y, B).
+inicio:- vaciar_lista, preguntar, sintomas(Y), mostrar_sintomas(Y), enfermedad(_, B), existe_en_enfermedad(Y, B).
