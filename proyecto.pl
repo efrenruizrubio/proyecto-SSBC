@@ -19,7 +19,7 @@ sintomas([]).
 count([0]).
 
 existe_en_sintomas(X):- sintomas(Y), member(X,Y), !.
-existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma], X):- (member(Cabeza_sintoma, X) -> write_ln("Exists") ; write_ln("Doesn't exist")), existe_en_enfermedad(Cola_sintoma, X). 
+existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma]):- enfermedad(A,B), imprimir(B). 
 
 insertar([],X,[X]).
 insertar([H|T], N, [H|R]):- insertar(T, N, R).
@@ -33,4 +33,4 @@ escribir(_):- write_ln("Los sintomas no se registraron debido a que se ingreso u
 
 mostrar_sintomas(X):- write_ln(""), write_ln("Los sintomas ingresados son: "), imprimir(X).
 
-inicio:- vaciar_lista, preguntar, sintomas(Y), mostrar_sintomas(Y), enfermedad(_, B), existe_en_enfermedad(Y, B).
+inicio:- vaciar_lista, preguntar, sintomas(Y), mostrar_sintomas(Y), existe_en_enfermedad(Y).
