@@ -13,13 +13,13 @@ enfermedad(salmonela, [diarrea, colicos_estomacales, fiebre, nauseas, vomito, es
 
 :- dynamic enfermedad/2.
 :- dynamic sintomas/1.
-:- dynamic count/1.
 
 sintomas([]).
-count([0]).
 
-existe_en_sintomas(X):- sintomas(Y), member(X,Y), !.
-existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma]):- enfermedad(A,B), imprimir(B). 
+existe_en_lista(X,Y):- member(Y,X), !.
+existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma], A, B, C):- (member(Cabeza_sintoma, B) -> (C == 0 -> Z is 1 ; Z is C+1) ; Z is 0), existe_en_enfermedad(Cola_sintoma, A, B, Z).
+
+test([Cabeza_sintoma|Cola_sintoma],A,B,C):- (write_ln(A), write_ln(""), (member(Cabeza_sintoma, B) -> C1 is C+1 ; true ), test(Cola_sintoma, A, B, C1)).
 
 insertar([],X,[X]).
 insertar([H|T], N, [H|R]):- insertar(T, N, R).
@@ -27,10 +27,9 @@ imprimir([Head|Tail]):- write_ln(Head), imprimir(Tail);!.
 lista_esta_vacia(L):- not(existe_en_sintomas(_,L)).
 vaciar_lista:- retractall(sintomas(_)), asserta(sintomas([])), retractall(count(_)), asserta(count(0)).
 
-preguntar:- write('Ingrese el sintoma: '), read(X), escribir(X), write_ln("Desea ingresar otro sintoma? [s/n]"), read(Y), (Y == s -> preguntar ;  true).
-escribir(Y):- sintomas(X), not(existe_en_sintomas(Y)), insertar(X, Y, New), retractall(sintomas(_)), asserta(sintomas(New)), !.
-escribir(_):- write_ln("Los sintomas no se registraron debido a que se ingreso un sintoma o mas repetido, intente de nuevo."), preguntar.
+preguntar:- write("Ingrese el sintoma: "), read(Y), escribir(Y).
+escribir(Y):- sintomas(X), (not(existe_en_lista(X,Y)) -> (insertar(X, Y, New), retractall(sintomas(_)), asserta(sintomas(New)), write_ln("Desea agregar otro sintoma? [s/n]: "), read(Z), (Z == s -> preguntar ; true)) ; (write_ln("El sintoma ingresado ya se encuentra registrado, intente de nuevo."), preguntar)).
 
 mostrar_sintomas(X):- write_ln(""), write_ln("Los sintomas ingresados son: "), imprimir(X).
 
-inicio:- vaciar_lista, preguntar, sintomas(Y), mostrar_sintomas(Y), existe_en_enfermedad(Y).
+inicio:- vaciar_lista, preguntar, sintomas(Y), mostrar_sintomas(Y), enfermedad(A,B), C is 0, test(Y,A,B,C).
