@@ -16,12 +16,12 @@ enfermedad(salmonela, [diarrea, colicos_estomacales, fiebre, nauseas, vomito, es
 :- dynamic count/1.
 
 sintomas([]).
-count([_, []]).
+count([]).
 
 existe_en_lista(X,Y):- member(Y,X), !.
 existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma], A, B, C):- (member(Cabeza_sintoma, B) -> (C == 0 -> Z is 1 ; Z is C+1) ; Z is 0), existe_en_enfermedad(Cola_sintoma, A, B, Z).
 
-test([Cabeza_sintoma|Cola_sintoma],A,B,C):- longitud([Cabeza_sintoma|Cola_sintoma], N), (member(Cabeza_sintoma, B) -> C1 is C+1 ; C1 is C), (N =:= 1 -> (asserta(count([[A], [C1]]))) ; (true)), test(Cola_sintoma,A,B,C1).
+test([Cabeza_sintoma|Cola_sintoma],A,B,C):- longitud([Cabeza_sintoma|Cola_sintoma], N), (member(Cabeza_sintoma, B) -> C1 is C+1 ; C1 is C), (N =:= 1 -> (assertz(count([A, C1]))) ; (true)), test(Cola_sintoma,A,B,C1).
 insertar([],X,[X]).
 insertar([H|T], N, [H|R]):- insertar(T, N, R).
 imprimir([Head|Tail]):- write_ln(Head), imprimir(Tail);!. 
@@ -32,7 +32,7 @@ limpiar_lista([], []).
 limpiar_lista([Cabeza|Cola], Resultado):- member(Cabeza, Cola), !, limpiar_lista(Cola, Resultado).
 limpiar_lista([Cabeza|Cola], [Cabeza|Resultado]):- limpiar_lista(Cola, Resultado).
 
-vaciar_lista:- retractall(sintomas(_)), asserta(sintomas([])), retractall(count(_)), asserta(count(0)).
+vaciar_lista:- retractall(sintomas(_)), asserta(sintomas([])), retractall(count(_)).
 
 preguntar:- write("Ingrese el sintoma: "), read(Y), escribir(Y).
 escribir(Y):- sintomas(X), (not(existe_en_lista(X,Y)) -> (insertar(X, Y, New), retractall(sintomas(_)), asserta(sintomas(New)), write_ln("Desea agregar otro sintoma? [s/n]: "), read(Z), (Z == s -> preguntar ; true)) ; (write_ln("El sintoma ingresado ya se encuentra registrado, intente de nuevo."), preguntar)).
