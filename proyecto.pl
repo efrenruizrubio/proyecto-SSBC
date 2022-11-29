@@ -14,14 +14,18 @@ enfermedad(salmonela, [diarrea, colicos_estomacales, fiebre, nauseas, vomito, es
 :- dynamic enfermedad/2.
 :- dynamic sintomas/1.
 :- dynamic count/1.
+:- dynamic longitud_enfermedad/1.
+:- dynamic list/1.
 
 sintomas([]).
 count([]).
+list([]).
+longitud_enfermedad(0).
 
 existe_en_lista(X,Y):- member(Y,X), !.
 existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma], A, B, C):- (member(Cabeza_sintoma, B) -> (C == 0 -> Z is 1 ; Z is C+1) ; Z is 0), existe_en_enfermedad(Cola_sintoma, A, B, Z).
 
-test([Cabeza_sintoma|Cola_sintoma],A,B,C):- longitud([Cabeza_sintoma|Cola_sintoma], N), (member(Cabeza_sintoma, B) -> C1 is C+1 ; C1 is C), (N =:= 1 -> (assertz(count([A, C1]))) ; (true)), test(Cola_sintoma,A,B,C1).
+test([Cabeza_sintoma|Cola_sintoma],A,B,C):- longitud(B, D), longitud([Cabeza_sintoma|Cola_sintoma], N), (member(Cabeza_sintoma, B) -> C1 is C+1 ; C1 is C), (N =:= 1 -> list(E), insertar(E,[A, C1],Nueva), retractall(list(_)), asserta(list(Nueva)) ; (true)), test(Cola_sintoma,A,B,C1).
 insertar([],X,[X]).
 insertar([H|T], N, [H|R]):- insertar(T, N, R).
 imprimir([Head|Tail]):- write_ln(Head), imprimir(Tail);!. 
