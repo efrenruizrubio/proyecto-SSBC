@@ -11,29 +11,30 @@ enfermedad(tetanos, [espasmos_musculares, tension_musculos_labios, rigidez_muscu
 enfermedad(polio, [fiebre, dolor_garganta, dolor_cabeza, vomito, fatiga, rigidez_musculos_espalda, rigidez_musculos_cuello, rigidez_musculos_brazos, rigidez_musculos_piernas, perdida_reflejos, extremidades_flojas, problemas_respiracion, apnea_suenio]).
 enfermedad(salmonela, [diarrea, colicos_estomacales, fiebre, nauseas, vomito, escalofrios, dolor_cabeza, sangre_heces]).
 
-:- dynamic enfermedad/2.
-:- dynamic cont/1.
 :- dynamic sintomas/1.
-:- dynamic count/1.
+:- dynamic longitud_enfermedad/1.
+:- dynamic lista/1.
 
 sintomas([]).
-count([0]).
+longitud_enfermedad(0).
+lista([]).
 
-existe_en_sintomas(X):- sintomas(Y), member(X,Y), !.
-test:- enfermedad(A,B,_), count(X), V is X+1, assert(count(V)), retractall(enfermedad(_,_,_)), assert(enfermedad(A,B,V)).
-existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma], X):- (member(Cabeza_sintoma, X) -> write_ln("Exists") ; write_ln("Doesn't exist")), existe_en_enfermedad(Cola_sintoma, X). 
 
+existe_en_lista(X,Y):- member(Y,X), !.
 insertar([],X,[X]).
 insertar([H|T], N, [H|R]):- insertar(T, N, R).
-escribir(Y):- sintomas(X), not(existe_en_sintomas(Y)), insertar(X, Y, New), retractall(sintomas(_)), asserta(sintomas(New)), !.
-escribir(_):- retractall(sintomas(_)), write_ln("Los sintomas no se registraron debido a que se ingreso un sintoma o mas repetido, intente de nuevo.").
 imprimir([Head|Tail]):- write_ln(Head), imprimir(Tail);!. 
-lista_esta_vacia(L):- not(existe_en_sintomas(_,L)).
-vaciar_lista:- retractall(sintomas(_)), asserta(sintomas([])), retractall(count(_)), asserta(count(0)).
+longitud([],0).
+longitud([_|T],N):- longitud(T,N1), N is N1+1.
+limpiar_lista([], []).
+limpiar_lista([Cabeza|Cola], Resultado):- member(Cabeza, Cola), !, limpiar_lista(Cola, Resultado).
+limpiar_lista([Cabeza|Cola], [Cabeza|Resultado]):- limpiar_lista(Cola, Resultado).
+vaciar_lista:- retractall(sintomas(_)), asserta(sintomas([])), retractall(lista(_)), asserta(lista([])).
 
-numero_sintomas:- retractall(cont(_)), write("Ingrese el numero de sintomas que desea ingresar: "), read(X), asserta(cont(X)), vaciar_lista.
+existe_en_enfermedad([Cabeza_sintoma|Cola_sintoma],A,B,C):- longitud(B, D), longitud([Cabeza_sintoma|Cola_sintoma], N), (member(Cabeza_sintoma, B) -> C1 is C+1 ; C1 is C), (N =:= 1 -> P is (C1 / D) * 100, lista(E), insertar(E,[A, P],Nueva), retractall(lista(_)), asserta(lista(Nueva)) ; (true)), existe_en_enfermedad(Cola_sintoma,A,B,C1).
+mostrar_sintomas(X):- write_ln(""), write_ln("Los sintomas ingresados son: "), imprimir(X).
 
-preguntar(0):- write_ln(""), write_ln("Los sintomas ingresados son: "), retractall(cont(_)), sintomas(X), imprimir(X).
-preguntar(X):- X > 0, write('Ingrese el sintoma: '), read(Y), escribir(Y), S is X-1, preguntar(S).
+preguntar:- write("Ingrese el sintoma: "), read(Y), escribir(Y).
+escribir(Y):- sintomas(X), (not(existe_en_lista(X,Y)) -> (insertar(X, Y, New), retractall(sintomas(_)), asserta(sintomas(New)), write_ln("Desea agregar otro sintoma? [s/n]: "), read(Z), (Z == s -> preguntar ; true)) ; (write_ln("El sintoma ingresado ya se encuentra registrado, intente de nuevo."), preguntar)), !.
 
-inicio:- numero_sintomas, cont(X), preguntar(X), sintomas(Y), enfermedad(_, B), existe_en_enfermedad(Y, B).
+inicio:- vaciar_lista, preguntar, sintomas(Y), mostrar_sintomas(Y),  enfermedad(A,B), C is 0, existe_en_enfermedad(Y,A,B,C) ; write_ln(""), write_ln("Enfermedades con su posible porcentaje de padecimiento: "), lista(L), limpiar_lista(L, NuevaLista), imprimir(NuevaLista).
